@@ -29,7 +29,12 @@ class Command(BaseCommand):
             flight.demand_level = round(random.uniform(0.8, 1.5), 2)
 
             # Optional: recalculate dynamic price
-            dynamic_price = calculate_dynamic_price(flight)
+            dynamic_price = calculate_dynamic_price(flight.base_price,
+                                                    flight.available_seats,
+                                                    flight.total_seats,
+                                                    flight.departure_time,
+                                                    flight.airline_tier,
+                                                    flight.demand_level)
             print(f"Flight {flight.flight_id} → ₹{dynamic_price}")
 
             await self.save_flight(flight)

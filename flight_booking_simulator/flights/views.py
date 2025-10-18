@@ -262,6 +262,8 @@ def create_passenger(request):
 
 
 
+from django.db import transaction
+from django.db.models import F
 
 @api_view(['POST'])
 def create_booking(request):
@@ -269,47 +271,83 @@ def create_booking(request):
     if serializer.is_valid():
         data = serializer.validated_data
 
-        # 1. Check seat availability (mocked here)
-        seat_available = True  # Replace with actual logic
+        passenger_id = data['passenger_id']
+        flight_id = data['flight_id']
 
-        if not seat_available:
-            return Response({"status": "failed", "message": "Seat not available"}, status=400)
+        try:
+            with transaction.atomic():  # ensures concurrency safety
+                # Lock flight row for update
+                flight = Flight.objects.select_for_update().get(id=flight_id)
 
-        # 2. Calculate price (mocked)
-        price = 5000  # Replace with dynamic pricing logic
+                # Check seat availability
+                if flight.available_seats <= 0:
+                    return Response({
+                        "status": "failed",
+                        "message": "No seats available for this flight."
+                    }, status=status.HTTP_400_BAD_REQUEST)
 
-        # 3. Insert into DB
-        passenger = Passenger.objects.get(id=data['passenger_id'])
-        flight = Flight.objects.get(id=data['flight_id'])
-        booking = Booking.objects.create(
-            flight=flight,
-            passenger=passenger,
-            travel_date=data['travel_date'],
-            seat_preference=data['seat_preference'],
-            price=price
-        )
+                passenger = Passenger.objects.get(id=passenger_id)
 
-        # 4. Generate PNR
-        booking.pnr = "PNR" + str(booking.id).zfill(9)
-        booking.save()
+                # --- Simulated Payment Step ---
+                payment_success = random.random() < 0.8  # 80% chance success
 
-        return Response({
-            "status": "success",
-            "message": "Booking confirmed",
-            "pnr": booking.pnr,
-            "booking_details": {
-                "flight": flight.id,
-                "passenger": passenger.name,
-                "date": booking.travel_date,
-                "seat": booking.seat_preference,
-                "price": booking.price
-            }
-        }, status=status.HTTP_201_CREATED)
+                if not payment_success:
+                    return Response({
+                        "status": "failed",
+                        "message": "Payment failed. Please try again."
+                    }, status=status.HTTP_402_PAYMENT_REQUIRED)
+
+                # --- Calculate dynamic price ---
+                final_price = calculate_dynamic_price(
+                    base_fare=flight.base_price,
+                    seats_available=flight.available_seats,
+                    total_seats=flight.total_seats,
+                    departure_time=flight.departure_time,
+                    airline_tier=flight.airline_tier,
+                    demand_level=flight.demand_level
+                )
+
+                # --- Create booking ---
+                booking = Booking.objects.create(
+                    flight=flight,
+                    passenger=passenger,
+                    travel_date=data['travel_date'],
+                    seat_preference=data['seat_preference'],
+                    price=final_price,
+                    status="CONFIRMED"
+                )
+
+                # --- Generate PNR ---
+                booking.pnr = "PNR" + str(booking.id).zfill(9)
+                booking.save()
+
+                # --- Decrement seat safely ---
+                flight.available_seats = F('available_seats') - 1
+                flight.save()
+
+                return Response({
+                    "status": "success",
+                    "message": "Booking confirmed successfully!",
+                    "payment_status": "success",
+                    "pnr": booking.pnr,
+                    "final_price": final_price,
+                    "booking_details": {
+                        "flight": flight.flight_id,
+                        "passenger": passenger.name,
+                        "date": booking.travel_date,
+                        "seat_preference": booking.seat_preference,
+                        "price": final_price
+                    }
+                }, status=status.HTTP_201_CREATED)
+
+        except Flight.DoesNotExist:
+            return Response({"error": "Flight not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Passenger.DoesNotExist:
+            return Response({"error": "Passenger not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-
 
 @api_view(['GET'])
 def health_check(request):

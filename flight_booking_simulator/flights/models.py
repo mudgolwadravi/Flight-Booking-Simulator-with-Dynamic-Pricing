@@ -28,9 +28,9 @@ class Flight(models.Model):
 
 
 class Passenger(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100,default="Unknown")
     age = models.IntegerField()
-    gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')])
+    gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')],default='Other')
     email = models.EmailField(unique=True,null=True, blank=True)
     phone = models.BigIntegerField(unique=True)
 
