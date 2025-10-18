@@ -39,7 +39,7 @@ class Passenger(models.Model):
 
 
 class Booking(models.Model):
-    booking_id = models.AutoField(primary_key=True)  # 👈 This tells Django to use booking_id
+    booking_id = models.AutoField(primary_key=True)  
     flight = models.ForeignKey(Flight, on_delete=models.CASCADE)
     passenger = models.ForeignKey(Passenger, on_delete=models.CASCADE)
     booking_date = models.DateTimeField(auto_now_add=True)
@@ -51,7 +51,7 @@ class Booking(models.Model):
 
 
     class Meta:
-        db_table = 'bookings'  # 👈 This maps to your existing MySQL table
+        db_table = 'bookings' 
 
     def __str__(self):
         return f"{self.pnr} - {self.passenger.name}"

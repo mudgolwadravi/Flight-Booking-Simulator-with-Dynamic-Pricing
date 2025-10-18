@@ -10,7 +10,6 @@ def update_demand():
         f.save()
 
 from celery import shared_task
-from .models import Flight
 from .views import calculate_dynamic_price
 import random
 

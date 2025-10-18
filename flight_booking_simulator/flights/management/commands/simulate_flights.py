@@ -97,7 +97,7 @@ class Command(BaseCommand):
 #                 destination=destination,
 #                 departure_time=dep_time,
 #                 arrival_time=arr_time,
-#                 base_price=base,  # 👈 use base_price instead of base_fare
+#                 base_price=base,  # use base_price instead of base_fare
 #                 total_seats=seats,
 #                 available_seats=available,
 #                 airline_tier=tier,
@@ -105,4 +105,4 @@ class Command(BaseCommand):
 #             )
 
 
-#         self.stdout.write(self.style.SUCCESS("✅ Simulated flights successfully!"))
+#         self.stdout.write(self.style.SUCCESS("Simulated flights successfully!"))
