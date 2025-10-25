@@ -3,21 +3,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Cancel Booking</title>
+  <title>Cancel Flight Booking</title>
   <link rel="stylesheet" href="{% static 'flights/css/cancel_booking.css' %}" />
 </head>
 <body>
-  <h1>Cancel Booking</h1>
+  <div class="cancel-container">
+    <h1>✈️ Cancel Flight Booking</h1>
+    <p class="sub-text">Enter your booking PNR number to cancel your flight.</p>
 
-  <form id="cancel-form">
-    {% csrf_token %}
-    <label>Enter PNR to Cancel:
-      <input type="text" name="pnr" id="pnr-input" required />
-    </label>
-    <button type="submit">Cancel Booking</button>
-  </form>
+    <form id="cancel-form">
+      {% csrf_token %}
+      <label for="pnr-input">PNR Number</label>
+      <input type="text" id="pnr-input" name="pnr" placeholder="Enter your PNR (e.g., ABC123)" required />
+      <button type="submit">Cancel Booking</button>
+    </form>
 
-  <div id="cancel-response"></div>
+    <div id="cancel-response"></div>
+  </div>
 
   <script src="{% static 'flights/js/cancel_booking.js' %}"></script>
 </body>
