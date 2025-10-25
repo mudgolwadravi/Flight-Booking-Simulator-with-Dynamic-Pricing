@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Booking Receipt</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 1cm;
+    }
+    body {
+      font-family: 'Arial', sans-serif;
+      font-size: 12px;
+      margin: 0;
+      padding: 0;
+      color: #333;
+      background-color: #f9f9f9;
+    }
+    .container {
+      width: 700px;
+      margin: 0 auto;
+      background: #fff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      page-break-inside: avoid;
+    }
+    .header {
+      color: #fff;
+      padding: 10px;
+      text-align: center;
+    }
+    .header h1 {
+      background: #002f6c;
+      margin: 0;
+      font-size: 22px;
+    }
+    .header p {
+      background: #7ae825ff;
+      margin: 5px 0 0;
+      font-size: 13px;
+    }
+    .section {
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      page-break-inside: avoid;
+    }
+    .section-title {
+      font-weight: bold;
+      font-size: 14px;
+      margin-bottom: 8px;
+      color: #002f6c;
+      border-bottom: 1px dashed #ccc;
+      padding-bottom: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      page-break-inside: avoid;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 6px;
+      text-align: left;
+      font-size: 12px;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .barcode, .qr {
+      text-align: center;
+      margin-top: 10px;
+    }
+    .footer {
+      text-align: center;
+      font-size: 10px;
+      color: #555;
+      padding: 10px;
+    }
+    .contact-info {
+      font-size: 11px;
+      color: #555;
+      margin-top: 8px;
+    }
+    .fare-table th, .fare-table td {
+      border: none;
+      text-align: right;
+    }
+    .fare-table th {
+      text-align: left;
+    }
+    .highlight {
+      color: #002f6c;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>FlyHigh Airlines</h1>
+      <p>Booking Confirmation</p>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Passenger Information</div>
+      <table>
+        <tr><th>Name</th><td>{{ booking.passenger.name }}</td></tr>
+        <tr><th>Booking Ref / PNR</th><td class="highlight">{{ booking.pnr }}</td></tr>
+        <tr><th>Ticket No</th><td>000-{{ booking.booking_id }}</td></tr>
+        <tr><th>Email</th><td>{{ booking.passenger.email }}</td></tr>
+        <tr><th>Phone</th><td>{{ booking.passenger.phone }}</td></tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Flight Details</div>
+      <table>
+        <tr>
+          <th>Flight ID</th><th>From</th><th>To</th><th>Class</th><th>Departure</th><th>Arrival</th>
+        </tr>
+        <tr>
+          <td>{{ booking.flight.origin }}</td>
+          <td>{{ booking.flight.destination }}</td>
+          <td>{{ booking.flight.flight_id }}</td>
+          <td>{{ booking.flight.airline_tier }}</td>
+          <td>{{ booking.flight.departure_time|date:"H:i d-m-Y" }}</td>
+          <td>{{ booking.flight.arrival_time|date:"H:i d-m-Y" }}</td>
+        </tr>
+      </table>
+      <p>Seat: {{ booking.seat_no }} ({{ booking.seat_preference }}) | Baggage: {{ booking.flight.baggage_allowance }} kg</p>
+      <div class="barcode">
+        <img src="{{ barcode_url }}" alt="Barcode" width="200" height="50"/>
+      </div>
+      <div class="qr">
+        <img src="{{ qr_url }}" alt="QR Code" width="100" height="100"/>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Payment Details</div>
+      <table class="fare-table">
+        <tr><th>Total Fare:</th><td class="highlight">₹{{ booking.total_fare }}</td></tr>
+        <tr><th>Payment Status:</th><td>{{ booking.status }}</td></tr>
+      </table>
+    </div>
+
+    <div class="footer">
+      Thank you for choosing FlyHigh Airlines. Have a pleasant journey!<br>
+      <div class="contact-info">
+        Customer Support: +91-123-456-7890 | Email: support@flyhigh.com | Website: www.flyhigh.com
+      </div>
+    </div>
+  </div>
+</body>
+</html>

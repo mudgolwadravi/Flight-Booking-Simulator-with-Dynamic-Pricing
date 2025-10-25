@@ -1,0 +1,31 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Flight Listings</title>
+    <link rel="stylesheet" href="{% static 'flights/css/flights.css' %}">
+</head>
+<body>
+    <h1>Available Flights</h1>
+    <div id="flight-container">
+        <table id="flight-table">
+            <thead>
+                <tr>
+                    <th>Flight No</th>
+                    <th>Origin</th>
+                    <th>Destination</th>
+                    <th>Departure</th>
+                    <th>Arrival</th>
+                    <th>Duration</th>
+                </tr>
+            </thead>
+            <tbody id="flight-body">
+                <!-- Rows will be injected by JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="{% static 'flights/js/flights.js' %}"></script>
+</body>
+</html>

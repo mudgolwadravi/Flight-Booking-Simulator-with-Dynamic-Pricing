@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Filter Flights</title>
+    <link rel="stylesheet" href="{% static 'flights/css/filter_flights.css' %}">
+</head>
+<body>
+    <h1>Filter Flights</h1>
+
+    <form id="filter-form">
+        <label>Max Price: <input type="number" name="max_price" value="10000"></label>
+        <label>Direct Only: <input type="checkbox" name="direct_only"></label>
+        <label>Airline Name: <input type="text" name="airline_name" placeholder="e.g. SpiceJet"></label>
+        <button type="submit">Apply Filters</button>
+    </form>
+
+    <div id="filters-applied"></div>
+
+    <table id="results-table">
+        <thead>
+            <tr>
+                <th>Flight ID</th>
+                <th>Airline</th>
+                <th>Origin</th>
+                <th>Destination</th>
+                <th>Departure</th>
+                <th>Arrival</th>
+                <th>Duration</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody id="results-body"></tbody>
+    </table>
+
+    <script src="{% static 'flights/js/filter_flights.js' %}"></script>
+</body>
+</html>

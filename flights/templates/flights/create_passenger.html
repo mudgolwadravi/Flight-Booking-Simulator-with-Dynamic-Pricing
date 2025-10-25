@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Passenger</title>
+    <link rel="stylesheet" href="{% static 'flights/css/create_passenger.css' %}">
+</head>
+<body>
+    <h1>Create Passenger</h1>
+
+    <form id="passenger-form">
+        {% csrf_token %}
+        <label>Name: <input type="text" name="name" required></label>
+        <label>Email: <input type="email" name="email" required></label>
+        <label>Phone: <input type="text" name="phone" required></label>
+        <label>Age: <input type="number" name="age" required></label>
+        <label>Gender:
+            <select name="gender" required>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select>
+        </label>
+        <button type="submit">Submit</button>
+    </form>
+
+    <div id="response-message"></div>
+
+    <script src="{% static 'flights/js/create_passenger.js' %}"></script>
+</body>
+</html>
