@@ -1,0 +1,93 @@
+
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FlyHigh - Explore & Book</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'flights/css/styles.css' %}">
+</head>
+<body>
+  <!-- ===== Navbar ===== -->
+  <header class="navbar">
+    <div class="logo">✈️ FlyHigh</div>
+    <nav>
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="{% url 'list_page' %}">Flights</a></li> 
+        <li><a href="{% url 'create_passenger_page' %}">Add Passenger</a></li>
+        <li><a href="{% url 'cancel_booking_page' %}">Cancel Booking</a></li>
+        
+
+      </ul>
+    </nav>
+  </header>
+
+  <!-- ===== Hero Section ===== -->
+  <section class="hero">
+    <img src="https://images.unsplash.com/photo-1502920514313-52581002a659?auto=format&fit=crop&w=1470&q=80" alt="Hero Image" class="hero-img" />
+    <div class="hero-content">
+      <h1>Ready for Takeoff?</h1>
+      <p>Discover top destinations, unbeatable fares, and exclusive travel perks with FlyHigh.</p>
+      <a href="{% url 'search_page' %}" class="cta-btn">Search Flights</a>
+    </div>
+  </section>
+
+  <!-- ===== Featured Destinations ===== -->
+  <section class="featured-destinations">
+    <h2>Popular Routes</h2>
+    <div class="destinations-grid">
+      <div class="destination-card">
+        <img src="{% static 'flights/images/mu.jpg' %}" alt="Mumbai to Delhi" />
+        <div class="destination-info">Mumbai → Delhi</div>
+      </div>
+      <div class="destination-card">
+        <img src="{% static 'flights/images/hyd.jpeg' %}" alt="Hyderabad to Bangalore" />
+        <div class="destination-info">Hyderabad → Bangalore</div>
+      </div>
+      <div class="destination-card">
+        <img src="{% static 'flights/images/chennai.jpg' %}" alt="Chennai to Kolkata" />
+        <div class="destination-info">Chennai → Kolkata</div>
+      </div>
+      <div class="destination-card">
+        <img src="{% static 'flights/images/pune.jpg' %}" alt="Pune to Goa" />
+        <div class="destination-info">Pune → Goa</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Offers Section ===== -->
+  <section class="offers">
+    <h2>Hot Deals & Discounts</h2>
+    <div class="offers-carousel">
+      <div class="offer-card">💸 Flat ₹500 off on round trips</div>
+      <div class="offer-card">🎉 Festival fares starting ₹999</div>
+      <div class="offer-card">🧳 Extra baggage for loyalty members</div>
+    </div>
+  </section>
+
+  <!-- ===== Loyalty Perks ===== -->
+  <section class="loyalty">
+    <h2>FlyHigh Rewards</h2>
+    <ul>
+      <li>✅ Earn points on every booking</li>
+      <li>✅ Priority boarding & lounge access</li>
+      <li>✅ Exclusive member-only fares</li>
+    </ul>
+    <a href="#" class="cta-btn">Join Loyalty Program</a>
+  </section>
+
+  <!-- ===== Footer ===== -->
+  <footer>
+    <p>© 2025 FlyHigh Airlines. All Rights Reserved.</p>
+    <div class="footer-links">
+      <a href="#">Terms</a> | <a href="#">Privacy</a> | <a href="#">Support</a>
+    </div>
+  </footer>
+
+  <script src="flights/js/scripts.js"></script>
+</body>
+</html>

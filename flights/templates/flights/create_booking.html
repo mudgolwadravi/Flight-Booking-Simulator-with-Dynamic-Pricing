@@ -1,0 +1,89 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Create Booking</title>
+    <link rel="stylesheet" href="{% static 'flights/css/create_booking.css' %}" />
+  </head>
+  <body>
+    <h1>Create Booking</h1>
+
+    <form id="booking-form">
+      {% csrf_token %}
+      <label>Passenger ID:<input type="number" name="passenger_id" required /></label>
+      <label>Flight ID:<input type="number" name="flight_id" required /></label>
+      <label>Travel Date:<input type="date" name="travel_date" required /></label>
+      <label>
+        Seat Preference:<select name="seat_preference" required>
+          <option value="Window">Window</option>
+          <option value="Aisle">Aisle</option>
+          <option value="Middle">Middle</option>
+        </select>
+      </label>
+
+      <h3>
+        Select Your Seat:
+        <button type="button" id="toggle-seat-map" aria-expanded="false" aria-controls="seat-map">🎫 Choose Seat</button>
+      </h3>
+
+      <!-- ✈️ SEAT MAP SECTION -->
+      <div id="seat-map" class="seat-map" hidden>
+        <div class="plane">
+          <div class="section-title">Business Class</div>
+          {% for i in business_rows %}
+            <div class="row">
+              {% for seat in seat_letters_business %}
+                <div class="seat business {% if seat|add:i in booked_seats %}unavailable{% endif %}" data-seat="{{ seat }}{{ i }}">{{ seat }}{{ i }}</div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+
+          <div class="section-title">Economy Class</div>
+          {% for i in economy_rows %}
+            <div class="row">
+              {% for seat in seat_letters_economy %}
+                {% if seat == 'space' %}
+                  <div class="seat space"></div>
+                {% else %}
+                  <div class="seat economy {% if seat|add:i in booked_seats %}unavailable{% endif %}" data-seat="{{ seat }}{{ i }}">{{ seat }}{{ i }}</div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <input type="hidden" name="seat_no" id="selected-seat" />
+      <button type="submit" class="submit-btn">Book Now</button>
+
+      <!-- Redirect notice if passenger not found -->
+      <div id="passenger-redirect" style="
+    margin-top: 20px; 
+    text-align: center; 
+    background-color: #4a84c3ff; 
+    padding: 12px 15px; 
+    border-radius: 8px; 
+    border: 1px solid #cce4ff; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    font-size: 0.95rem;
+    color: #333;
+">
+        <p style="margin: 0;">
+          <span style="font-weight: 500;">Don't have a Passenger ID?</span>
+          <a href="{% url 'create_passenger_page' %}" style="
+        color: #2bdaeeff; 
+        text-decoration: none; 
+        font-weight: 600; 
+        margin-left: 5px;
+        transition: color 0.3s ease;
+    ">Add a new passenger</a>
+        </p>
+      </div>
+    </form>
+
+    <div id="response-message"></div>
+
+    <script src="{% static 'flights/js/create_booking.js' %}"></script>
+  </body>
+</html>

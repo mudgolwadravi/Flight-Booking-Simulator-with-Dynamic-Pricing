@@ -1,0 +1,118 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Passenger Registration</title>
+  <link rel="stylesheet" href="{% static 'flights/css/create_passenger.css' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <div class="registration-container">
+    <div class="form-header">
+      {% comment %} <img src="{% static 'flights/images/logo.png' %}" alt="Airline Logo" class="logo"> {% endcomment %}
+      <h2>Passenger Registration</h2>
+      <p>Enter your details to continue your booking</p>
+    </div>
+
+    <form id="passenger-form" class="passenger-form">
+      {% csrf_token %}
+
+      <div class="form-row">
+        <div class="input-box">
+          <i class="fas fa-user"></i>
+          <input type="text" name="name" required>
+          <label>Full Name</label>
+        </div>
+
+        <div class="input-box">
+          <i class="fas fa-envelope"></i>
+          <input type="email" name="email" required>
+          <label>Email Address</label>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="input-box">
+          <i class="fas fa-phone-alt"></i>
+          <input type="text" name="phone" required>
+          <label>Phone Number</label>
+        </div>
+
+        <div class="input-box">
+          <i class="fas fa-birthday-cake"></i>
+          <input type="number" name="age" required>
+          <label>Age</label>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="input-box">
+          <i class="fas fa-venus-mars"></i>
+          <select name="gender" required>
+            <option value="" disabled selected>Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn">
+        <i class="fas fa-paper-plane"></i> Submit Registration
+      </button>
+
+      <div id="response-message" class="response-message"></div>
+    </form>
+  </div>
+
+  <script>
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+          cookie = cookie.trim();
+          if (cookie.startsWith(name + '=')) {
+            cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    document.getElementById('passenger-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData.entries());
+
+      fetch('/api/passengers/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(data)
+      })
+      .then(res => res.json())
+      .then(response => {
+        const messageDiv = document.getElementById('response-message');
+        if (response.passenger_id) {
+          messageDiv.innerHTML = `<p class="success"><i class="fas fa-check-circle"></i> Registration Successful!<br>Passenger ID: ${response.passenger_id}</p>`;
+          e.target.reset();
+        } else {
+          messageDiv.innerHTML = `<p class="error"><i class="fas fa-exclamation-triangle"></i> ${JSON.stringify(response)}</p>`;
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('response-message').innerHTML = `<p class="error"><i class="fas fa-times-circle"></i> Something went wrong.</p>`;
+      });
+    });
+  </script>
+
+</body>
+</html>
