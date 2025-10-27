@@ -1,61 +1,63 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Flight Finder | FlyHigh</title>
-  <link rel="stylesheet" href="{% static 'flights/css/search_flights.css' %}" />
-</head>
-<body>
-  <!-- ===== Navbar ===== -->
-  <header class="navbar">
-    <h1>✈️ FlyHigh Flight Finder</h1>
-  </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flight Finder | FlyHigh</title>
+    <link rel="stylesheet" href="{% static 'flights/css/search_flights.css' %}" />
+   
+  </head>
 
-  <!-- ===== Main Container ===== -->
-  <main class="container">
-    <section class="search-box">
-      <h2>Search for Flights</h2>
+  <body>
+    <!-- ===== Navbar ===== -->
+    <header class="navbar">
+      <h1>✈️ FlyHigh Flight Finder</h1>
+    </header>
 
-      <form id="flightSearchForm">
-        <div class="form-group">
-          <label for="origin">Origin City</label>
-          <input type="text" id="origin" name="origin" placeholder="Enter origin city" required />
-        </div>
+    <!-- ===== Main Container ===== -->
+    <main class="container">
+      <section class="search-box">
+        <h2>Find the Best Flights</h2>
 
-        <div class="form-group">
-          <label for="destination">Destination City</label>
-          <input type="text" id="destination" name="destination" placeholder="Enter destination city" required />
-        </div>
+        <form id="flightSearchForm">
+          <div class="form-group">
+            <label for="origin">🛫 Origin City</label>
+            <input type="text" id="origin" name="origin" placeholder="Enter origin city" required />
+          </div>
 
-        <div class="form-group">
-          <label for="date">Travel Date</label>
-          <input type="date" id="date" name="date" required />
-        </div>
+          <div class="form-group">
+            <label for="destination">🛬 Destination City</label>
+            <input type="text" id="destination" name="destination" placeholder="Enter destination city" required />
+          </div>
 
-        <div class="form-group">
-          <label for="sort">Sort By</label>
-          <select id="sort" name="sort">
-            <option value="price">Price</option>
-            <option value="duration">Duration</option>
-          </select>
-        </div>
+          <div class="form-group">
+            <label for="date">📅 Travel Date</label>
+            <input type="date" id="date" name="date" required />
+          </div>
 
-        <button type="submit" class="btn">🔍 Search Flights</button>
-      </form>
+          <div class="form-group">
+            <label for="sort">🔽 Sort By</label>
+            <select id="sort" name="sort">
+              <option value="price">Price</option>
+              <option value="duration">Duration</option>
+            </select>
+          </div>
 
-      <div id="errorBox" class="error-box" role="alert"></div>
-    </section>
+          <button type="submit" class="btn">🔍 Search Flights</button>
+        </form>
 
-    <!-- ===== Results Section ===== -->
-    <section id="results" class="results" aria-live="polite"></section>
-  </main>
+        <div id="errorBox" class="error-box" role="alert"></div>
+      </section>
 
-  <footer>
-    <p>© 2025 FlyHigh Airlines. All Rights Reserved.</p>
-  </footer>
+      <!-- ===== Results Section ===== -->
+      <section id="results" class="results" aria-live="polite"></section>
+    </main>
 
-  <script src="{% static 'flights/js/search_flights.js' %}"></script>
-</body>
+    <footer>
+      <p>© 2025 FlyHigh Airlines. All Rights Reserved.</p>
+    </footer>
+
+    <script src="{% static 'flights/js/search_flights.js' %}"></script>
+  </body>
 </html>

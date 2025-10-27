@@ -135,3 +135,4 @@ select {
 .seat:hover:not(.unavailable):not(.space) {
   transform: scale(1.1);
 }
+

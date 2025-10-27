@@ -273,7 +273,7 @@ def create_passenger(request):
         passenger = serializer.save()
         return Response({
             "message": "Passenger details are created successfully",
-            "passenger_id": passenger.id,
+            "passenger_id": passenger.passenger_id,
             "data": serializer.data
         }, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -572,17 +572,59 @@ def health_check(request):
 
 
 
+# @api_view(['DELETE'])
+# def cancel_booking(request, pnr):
+#     try:
+#         booking = Booking.objects.select_related('flight').get(pnr=pnr.upper())
+
+#         # Restore seat availability
+#         flight = booking.flight
+#         flight.available_seats += 1
+#         flight.save()
+
+#         # Capture cancelled booking details
+#         cancelled_data = {
+#             "pnr": booking.pnr,
+#             "flight_id": flight.flight_id,
+#             "passenger_id": booking.passenger.passenger_id,
+#             "seat_no": booking.seat_no,
+#             "travel_date": booking.travel_date
+#         }
+
+#         # Delete the booking
+#         booking.delete()
+
+#         return Response({
+#             "message": "Booking cancelled successfully",
+#             "cancelled_booking": cancelled_data
+#         }, status=status.HTTP_200_OK)
+
+#     except Booking.DoesNotExist:
+#         return Response({
+#             "detail": f"Booking with PNR {pnr.upper()} not found"
+#         }, status=status.HTTP_404_NOT_FOUND)
+
+
+
+import requests
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Booking
+
+TELEGRAM_BOT_TOKEN = "7304172250:AAGfhKDi9gmY2eT1CKS0jqepSDWFivYnKeg"
+TELEGRAM_CHAT_ID = "5601751259"  # Can be the passenger’s or admin’s chat
+
 @api_view(['DELETE'])
 def cancel_booking(request, pnr):
     try:
-        booking = Booking.objects.select_related('flight').get(pnr=pnr.upper())
+        booking = Booking.objects.select_related('flight', 'passenger').get(pnr=pnr.upper())
+        flight = booking.flight
 
         # Restore seat availability
-        flight = booking.flight
         flight.available_seats += 1
         flight.save()
 
-        # Capture cancelled booking details
         cancelled_data = {
             "pnr": booking.pnr,
             "flight_id": flight.flight_id,
@@ -591,7 +633,21 @@ def cancel_booking(request, pnr):
             "travel_date": booking.travel_date
         }
 
-        # Delete the booking
+        # Prepare message for Telegram
+        message = (
+            f"🛑 *Booking Cancelled Successfully*\n\n"
+            f"✈️ *PNR:* `{booking.pnr}`\n"
+            f"🧳 *Flight:* {flight.flight_id}\n"
+            f"💺 *Seat:* {booking.seat_no}\n"
+            f"📅 *Date:* {booking.travel_date}\n"
+            f"👤 *Passenger ID:* {booking.passenger.passenger_id}\n\n"
+            f"Thank you for using our service!"
+        )
+
+        # Send Telegram notification
+        send_telegram_message(message)
+
+        # Delete booking
         booking.delete()
 
         return Response({
@@ -605,4 +661,15 @@ def cancel_booking(request, pnr):
         }, status=status.HTTP_404_NOT_FOUND)
 
 
-
+def send_telegram_message(message):
+    """Send message to Telegram chat using bot API"""
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    payload = {
+        "chat_id": TELEGRAM_CHAT_ID,
+        "text": message,
+        "parse_mode": "Markdown"
+    }
+    try:
+        requests.post(url, data=payload, timeout=5)
+    except Exception as e:
+        print(f"Telegram send failed: {e}")
