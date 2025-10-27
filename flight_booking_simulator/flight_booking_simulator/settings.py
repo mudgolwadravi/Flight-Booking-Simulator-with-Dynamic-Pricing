@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-b(0j#pz*+b%)yh$vl0fj-ak%qcg#ph=&u&0b^pm*8tv3hwkr43
 DEBUG = True
 
 # ALLOWED_HOSTS = ['flight-booking-simulator-with-dynamic-4m8q.onrender.com']
-ALLOWED_HOSTS = ['flight-booking-simulator-with-dynamic-4m8q.onrender.com']
+ALLOWED_HOSTS = ['*']
 
 
 
