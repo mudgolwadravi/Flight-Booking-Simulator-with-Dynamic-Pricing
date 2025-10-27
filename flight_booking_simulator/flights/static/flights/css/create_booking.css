@@ -1,0 +1,137 @@
+body {
+  font-family: "Poppins", sans-serif;
+  background: radial-gradient(circle at center, #004e92, #000428);
+  padding: 30px;
+  color: white;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+form {
+  max-width: 550px;
+  margin: auto;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 25px 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  backdrop-filter: blur(10px);
+}
+
+label {
+  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+}
+
+input,
+select {
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  margin-top: 5px;
+}
+
+#toggle-seat-map {
+  padding: 8px 15px;
+  border: none;
+  background: #ffb300;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#toggle-seat-map:hover {
+  background: #ffa000;
+}
+
+.submit-btn {
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  background: #4caf50;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.submit-btn:hover {
+  background: #43a047;
+}
+
+#response-message {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 16px;
+}
+
+/* ===== SEAT MAP STYLING ===== */
+.plane {
+  background: #e9e9e9;
+  border-radius: 0 0 40px 40px;
+  padding: 20px 0;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.section-title {
+  color: #ff9800;
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+  margin: 8px 0;
+}
+
+.seat {
+  width: 35px;
+  height: 35px;
+  margin: 3px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 35px;
+  text-align: center;
+  font-weight: bold;
+  color: #000;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.seat.business {
+  background-color: #ffd54f;
+  border: 1px solid #ffb300;
+}
+
+.seat.economy {
+  background-color: #90caf9;
+  border: 1px solid #2196f3;
+}
+
+.seat.space {
+  visibility: hidden;
+}
+
+.seat.selected {
+  background-color: #4caf50;
+  border: 1px solid #2e7d32;
+  color: white;
+}
+
+.seat.unavailable {
+  background-color: #f44336;
+  cursor: not-allowed;
+  color: white;
+}
+
+.seat:hover:not(.unavailable):not(.space) {
+  transform: scale(1.1);
+}

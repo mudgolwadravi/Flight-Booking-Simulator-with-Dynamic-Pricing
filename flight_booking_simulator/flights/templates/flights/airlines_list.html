@@ -1,0 +1,19 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Airlines List</title>
+    <link rel="stylesheet" href="{% static 'flights/css/airlines_list.css' %}">
+</head>
+<body>
+    <h1>Available Airlines</h1>
+    <div id="airlines-container">
+        <ul id="airlines-list">
+            <li>Loading airlines...</li>
+        </ul>
+    </div>
+
+    <script src="{% static 'flights/js/airlines_list.js' %}"></script>
+</body>
+</html>
