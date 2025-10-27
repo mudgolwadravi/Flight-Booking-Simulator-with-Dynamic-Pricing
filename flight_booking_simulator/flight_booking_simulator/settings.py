@@ -26,10 +26,18 @@ SECRET_KEY = 'django-insecure-b(0j#pz*+b%)yh$vl0fj-ak%qcg#ph=&u&0b^pm*8tv3hwkr43
 DEBUG = True
 
 # ALLOWED_HOSTS = ['flight-booking-simulator-with-dynamic-4m8q.onrender.com']
-ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    'flight-booking-simulator-with-dynamic-4m8q.onrender.com'
+import os
+
+# Render sets this environment variable automatically
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', RENDER_EXTERNAL_HOSTNAME]
+else:
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'flight-booking-simulator-with-dynamic-4m8q.onrender.com']
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://flight-booking-simulator-with-dynamic-4m8q.onrender.com"
 ]
 
 
