@@ -133,6 +133,11 @@ MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 # Enable caching and compression
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://flight-booking-simulator-with-dynamic-4m8q.onrender.com"
+]
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
