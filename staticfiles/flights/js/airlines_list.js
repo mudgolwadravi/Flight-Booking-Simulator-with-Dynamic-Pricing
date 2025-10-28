@@ -1,6 +1,5 @@
-const baseUrl = window.location.origin;
 document.addEventListener('DOMContentLoaded', () => {
-    fetch('${baseUrl}/api/flights/airlines/')
+    fetch('/api/flights/airlines/')
         .then(response => response.json())
         .then(data => {
             const list = document.getElementById('airlines-list');
