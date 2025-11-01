@@ -41,7 +41,6 @@ document.getElementById("cancel-form").addEventListener("submit", function (e) {
             <p><strong>Flight ID:</strong> ${response.cancelled_booking.flight_id}</p>
             <p><strong>Seat No:</strong> ${response.cancelled_booking.seat_no}</p>
             <p><strong>Travel Date:</strong> ${response.cancelled_booking.travel_date}</p>
-            <p class="info-msg">📩 SMS notification sent to your registered mobile number.</p>
           </div>`;
       } else {
         responseDiv.innerHTML = `<p class="error-msg">❌ ${response.detail || "Cancellation failed."}</p>`;

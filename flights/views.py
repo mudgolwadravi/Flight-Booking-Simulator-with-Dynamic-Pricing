@@ -30,47 +30,79 @@ def index(request):
     })
 
 
-# --- Dynamic Pricing Logic ---
+
 # Milestone2- dynamic pricing engine
 
-
-def calculate_dynamic_price(base_fare, seats_available, total_seats, departure_time, airline_tier, demand_level=None):
+# -----------------------------------------
+#  DYNAMIC PRICING ENGINE (Realistic Model)
+# -----------------------------------------
+def calculate_dynamic_price(base_fare, seats_available, total_seats, departure_time, airline_tier, demand_level):
     """
-    Calculates dynamic flight price based on seat availability, time to departure,
-    demand level, and airline tier.
+    Realistic airline dynamic pricing engine.
+    Factors:
+      - Remaining seat percentage
+      - Time until departure
+      - Demand level (above 1 = high demand, below 1 = low demand)
+      - Airline pricing tier
     """
 
-    # 1. Seat Factor
+    #  SEAT AVAILABILITY FACTOR
     seat_ratio = seats_available / total_seats
-    seat_factor = (1 - seat_ratio) * 0.3  # fewer seats → higher price
-
-    # 2. Time Factor
-    days_until_departure = (departure_time - timezone.now()).days
-    days_until_departure = max(days_until_departure, 0)
-    time_factor = (1 / (days_until_departure + 1)) * 0.5  # closer → more expensive
-
-    # 3. Demand Factor
-    if demand_level is None:
-        demand_factor = random.uniform(-0.1, 0.3)  # simulate real-time demand
+    if seat_ratio <= 0.2:
+        seat_factor = 0.25  # less than 20% seats left → +25%
+    elif seat_ratio <= 0.5:
+        seat_factor = 0.10  # 50% seats left → +10%
+    elif seat_ratio <= 0.8:
+        seat_factor = 0.03  # moderate fill → +3%
     else:
-        demand_factor = demand_level
+        seat_factor = -0.05  # lots of seats left → -5%
 
-    # 4. Tier Factor
+    #TIME UNTIL DEPARTURE FACTOR
+    days_until_departure = max((departure_time - timezone.now()).days, 0)
+    if days_until_departure <= 1:
+        time_factor = 0.30  # very close → +30%
+    elif days_until_departure <= 3:
+        time_factor = 0.15
+    elif days_until_departure <= 7:
+        time_factor = 0.07
+    else:
+        time_factor = -0.05  # far away → cheaper
+
+    # DEMAND FACTOR (based on numeric demand level)
+    # Normalize demand impact: >1 = increase, <1 = decrease
+    if demand_level >= 1.2:
+        demand_factor = 0.20  # very high demand
+    elif demand_level >= 1.0:
+        demand_factor = 0.10  # moderate demand
+    elif demand_level >= 0.9:
+        demand_factor = 0.0   # normal
+    else:
+        demand_factor = -0.10  # low demand → lower price
+
+    # AIRLINE TIER FACTOR
     tier_weights = {
-        "economy": 0.0,
-        "standard": 0.2,
-        "business": 0.3,
-        "premium": 0.4
+        "economy": 0.00,
+        "standard": 0.08,
+        "business": 0.20,
+        "premium": 0.35
     }
-    tier_factor = tier_weights.get(airline_tier.lower(), 0.1)
+    tier_factor = tier_weights.get(airline_tier.lower(), 0.05)
 
-    # 5. Total Factor
+    # TOTAL FACTOR (sum of weighted influences)
     total_factor = seat_factor + time_factor + demand_factor + tier_factor
+
+    # Clamp total factor within realistic airline range (-15% to +60%)
+    total_factor = min(max(total_factor, -0.15), 0.60)
+
+    # FINAL PRICE CALCULATION
     dynamic_price = base_fare * (1 + total_factor)
 
     return round(dynamic_price, 2)
 
 
+# -----------------------------------------
+#  API Endpoint: GET Dynamic Price
+# -----------------------------------------
 @api_view(['GET'])
 def get_dynamic_price(request, flight_id):
     try:
@@ -81,29 +113,31 @@ def get_dynamic_price(request, flight_id):
             status=status.HTTP_404_NOT_FOUND
         )
 
-    # Calculate dynamic price
-    price = calculate_dynamic_price(base_fare=flight.base_price,
+    # Calculate updated dynamic price
+    dynamic_price = calculate_dynamic_price(
+        base_fare=flight.base_price,
         seats_available=flight.available_seats,
         total_seats=flight.total_seats,
         departure_time=flight.departure_time,
         airline_tier=flight.airline_tier,
-        demand_level=flight.demand_level  # optional
+        demand_level=flight.demand_level
     )
 
+    # Return the structured data
     return Response({
         "flight_id": flight.flight_id,
+        "airline": flight.airline_name,
         "origin": flight.origin,
         "destination": flight.destination,
         "departure_time": flight.departure_time,
         "arrival_time": flight.arrival_time,
         "base_fare": flight.base_price,
-        "dynamic_price": price,
-        "seats_available": flight.available_seats,
+        "dynamic_price": dynamic_price,
+        "available_seats": flight.available_seats,
         "total_seats": flight.total_seats,
         "airline_tier": flight.airline_tier,
-        "demand_level": flight.demand_level
+        "demand_level": flight.demand_level,
     }, status=status.HTTP_200_OK)
-
 
 # --- Search Flights ---
 
@@ -279,95 +313,6 @@ def create_passenger(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-# from django.db import transaction
-# from django.db.models import F
-
-# @api_view(['POST'])
-# def create_booking(request):
-#     serializer = BookingRequestSerializer(data=request.data)
-#     if serializer.is_valid():
-#         data = serializer.validated_data
-
-#         passenger_id = data['passenger_id']
-#         flight_id = data['flight_id']
-
-#         try:
-#             with transaction.atomic():  # ensures concurrency safety
-#                 # Lock flight row for update
-#                 flight = Flight.objects.select_for_update().get(flight_id=flight_id)
-
-#                 # Check seat availability
-#                 if flight.available_seats <= 0:
-#                     return Response({
-#                         "status": "failed",
-#                         "message": "No seats available for this flight."
-#                     }, status=status.HTTP_400_BAD_REQUEST)
-
-#                 passenger = Passenger.objects.get(passenger_id=passenger_id)
-
-
-#                 # --- Simulated Payment Step ---
-#                 payment_success = random.random() < 0.8  # 80% chance success
-
-#                 if not payment_success:
-#                     return Response({
-#                         "status": "failed",
-#                         "message": "Payment failed. Please try again."
-#                     }, status=status.HTTP_402_PAYMENT_REQUIRED)
-
-#                 # --- Calculate dynamic price ---
-#                 final_price = calculate_dynamic_price(
-#                     base_fare=flight.base_price,
-#                     seats_available=flight.available_seats,
-#                     total_seats=flight.total_seats,
-#                     departure_time=flight.departure_time,
-#                     airline_tier=flight.airline_tier,
-#                     demand_level=flight.demand_level
-#                 )
-
-#                 # --- Create booking ---
-#                 booking = Booking.objects.create(
-#                     flight=flight,
-#                     passenger=passenger,
-#                     travel_date=data['travel_date'],
-#                     seat_preference=data['seat_preference'],
-#                     seat_no=data.get('seat_no'),
-#                     total_fare=final_price,
-#                     status="CONFIRMED"
-#                 )
-
-#                 # --- Generate PNR ---
-#                 booking.pnr = "PNR" + str(booking.booking_id).zfill(9)
-#                 booking.save()
-
-#                 # --- Decrement seat safely ---
-#                 flight.available_seats = F('available_seats') - 1
-#                 flight.save()
-
-#                 return Response({
-#                     "status": "success",
-#                     "message": "Booking confirmed successfully!",
-#                     "payment_status": "success",
-#                     "pnr": booking.pnr,
-#                     "final_price": final_price,
-#                     "booking_details": {
-#                         "flight": flight.flight_id,
-#                         "passenger": passenger.name,
-#                         "date": booking.travel_date,
-#                         "seat_preference": booking.seat_preference,
-#                         "price": final_price
-#                     }
-#                 }, status=status.HTTP_201_CREATED)
-
-#         except Flight.DoesNotExist:
-#             return Response({"error": "Flight not found"}, status=status.HTTP_404_NOT_FOUND)
-#         except Passenger.DoesNotExist:
-#             return Response({"error": "Passenger not found"}, status=status.HTTP_404_NOT_FOUND)
-#         except Exception as e:
-#             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -572,39 +517,6 @@ def health_check(request):
 
 
 
-# @api_view(['DELETE'])
-# def cancel_booking(request, pnr):
-#     try:
-#         booking = Booking.objects.select_related('flight').get(pnr=pnr.upper())
-
-#         # Restore seat availability
-#         flight = booking.flight
-#         flight.available_seats += 1
-#         flight.save()
-
-#         # Capture cancelled booking details
-#         cancelled_data = {
-#             "pnr": booking.pnr,
-#             "flight_id": flight.flight_id,
-#             "passenger_id": booking.passenger.passenger_id,
-#             "seat_no": booking.seat_no,
-#             "travel_date": booking.travel_date
-#         }
-
-#         # Delete the booking
-#         booking.delete()
-
-#         return Response({
-#             "message": "Booking cancelled successfully",
-#             "cancelled_booking": cancelled_data
-#         }, status=status.HTTP_200_OK)
-
-#     except Booking.DoesNotExist:
-#         return Response({
-#             "detail": f"Booking with PNR {pnr.upper()} not found"
-#         }, status=status.HTTP_404_NOT_FOUND)
-
-
 
 import requests
 from rest_framework.decorators import api_view
@@ -612,8 +524,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Booking
 
-TELEGRAM_BOT_TOKEN = "7304172250:AAGfhKDi9gmY2eT1CKS0jqepSDWFivYnKeg"
-TELEGRAM_CHAT_ID = "5601751259"  # Can be the passenger’s or admin’s chat
+# TELEGRAM_BOT_TOKEN = "7304172250:AAGfhKDi9gmY2eT1CKS0jqepSDWFivYnKeg"
+# TELEGRAM_CHAT_ID = "5601751259"  # Can be the passenger’s or admin’s chat
 
 @api_view(['DELETE'])
 def cancel_booking(request, pnr):
@@ -634,18 +546,18 @@ def cancel_booking(request, pnr):
         }
 
         # Prepare message for Telegram
-        message = (
-            f"🛑 *Booking Cancelled Successfully*\n\n"
-            f"✈️ *PNR:* `{booking.pnr}`\n"
-            f"🧳 *Flight:* {flight.flight_id}\n"
-            f"💺 *Seat:* {booking.seat_no}\n"
-            f"📅 *Date:* {booking.travel_date}\n"
-            f"👤 *Passenger ID:* {booking.passenger.passenger_id}\n\n"
-            f"Thank you for using our service!"
-        )
+        # message = (
+        #     f"🛑 *Booking Cancelled Successfully*\n\n"
+        #     f"✈️ *PNR:* `{booking.pnr}`\n"
+        #     f"🧳 *Flight:* {flight.flight_id}\n"
+        #     f"💺 *Seat:* {booking.seat_no}\n"
+        #     f"📅 *Date:* {booking.travel_date}\n"
+        #     f"👤 *Passenger ID:* {booking.passenger.passenger_id}\n\n"
+        #     f"Thank you for using our service!"
+        # )
 
         # Send Telegram notification
-        send_telegram_message(message)
+        # send_telegram_message(message)
 
         # Delete booking
         booking.delete()
@@ -661,15 +573,17 @@ def cancel_booking(request, pnr):
         }, status=status.HTTP_404_NOT_FOUND)
 
 
-def send_telegram_message(message):
-    """Send message to Telegram chat using bot API"""
-    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-    payload = {
-        "chat_id": TELEGRAM_CHAT_ID,
-        "text": message,
-        "parse_mode": "Markdown"
-    }
-    try:
-        requests.post(url, data=payload, timeout=5)
-    except Exception as e:
-        print(f"Telegram send failed: {e}")
+# def send_telegram_message(message):
+#     """Send message to Telegram chat using bot API"""
+#     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+#     payload = {
+#         "chat_id": TELEGRAM_CHAT_ID,
+#         "text": message,
+#         "parse_mode": "Markdown"
+#     }
+#     try:
+#         requests.post(url, data=payload, timeout=5)
+#     except Exception as e:
+#         print(f"Telegram send failed: {e}")
+
+

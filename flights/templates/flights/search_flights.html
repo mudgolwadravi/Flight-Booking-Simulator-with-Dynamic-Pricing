@@ -1,4 +1,4 @@
-{% load static %}
+{% comment %} {% load static %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -60,4 +60,436 @@
 
     <script src="{% static 'flights/js/search_flights.js' %}"></script>
   </body>
+</html>  {% endcomment %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Flights</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #002244, #0055aa);
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .search-container {
+      background: #fff;
+      padding: 40px 50px;
+      border-radius: 18px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+      width: 700px;
+      max-width: 90%;
+      animation: fadeIn 1s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .form-header h2 {
+      font-weight: 600;
+      color: #003366;
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .form-header p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .search-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 15px;
+    }
+
+    .input-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .input-group label {
+      color: #0078ff;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .input-group input,
+    .input-group select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: 'Poppins', sans-serif;
+      background: #f9f9f9;
+      transition: all 0.3s ease;
+    }
+
+    .input-group input:focus,
+    .input-group select:focus {
+      border-color: #0078ff;
+      background: #fff;
+      outline: none;
+      box-shadow: 0 0 8px rgba(0,120,255,0.2);
+    }
+
+    .input-group select {
+      cursor: pointer;
+      color: #333;
+    }
+
+    .submit-btn {
+      padding: 14px;
+      background: #0078ff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
+    }
+
+    .submit-btn:hover {
+      background: #005ec4;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,120,255,0.3);
+    }
+
+    .response-message {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 14px;
+      min-height: 20px;
+    }
+
+    .response-message .success {
+      color: #009933;
+      font-weight: 500;
+    }
+
+    .response-message .error {
+      color: #e60000;
+      font-weight: 500;
+    }
+
+    /* Results Section */
+    .results-section {
+      margin-top: 35px;
+      padding-top: 30px;
+      border-top: 2px solid #f0f0f0;
+    }
+
+    .results-header {
+      text-align: center;
+      color: #003366;
+      font-weight: 600;
+      margin-bottom: 20px;
+      font-size: 20px;
+    }
+
+    .flight-results {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+
+    .flight-results::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .flight-results::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    .flight-results::-webkit-scrollbar-thumb {
+      background: #0078ff;
+      border-radius: 10px;
+    }
+
+    .flight-card {
+      background: #f9f9f9;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .flight-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0,120,255,0.15);
+      border-color: #0078ff;
+    }
+
+    .flight-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .flight-route {
+      font-size: 18px;
+      font-weight: 600;
+      color: #003366;
+    }
+
+    .flight-route .arrow {
+      color: #888;
+      margin: 0 8px;
+    }
+
+    .flight-price {
+      font-size: 22px;
+      font-weight: 700;
+      color: #009933;
+    }
+
+    .flight-details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 15px;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .book-btn {
+      width: 100%;
+      padding: 10px;
+      background: #0078ff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .book-btn:hover {
+      background: #005ec4;
+      transform: translateY(-1px);
+    }
+
+    @media (max-width: 650px) {
+      .search-container {
+        padding: 30px 20px;
+      }
+      
+      .form-row {
+        flex-direction: column;
+      }
+
+      .flight-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="search-container">
+    <div class="form-header">
+      <h2>Search Flights</h2>
+      <p>Find the perfect flight for your journey</p>
+    </div>
+
+    <form id="flight-search-form" class="search-form">
+      {% csrf_token %}
+
+      <div class="form-row">
+        <div class="input-group">
+          <label>Origin City</label>
+          <input type="text" name="origin" required>
+        </div>
+
+        <div class="input-group">
+          <label>Destination City</label>
+          <input type="text" name="destination" required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="input-group">
+          <label>Travel Date</label>
+          <input type="date" name="date" required>
+        </div>
+
+        <div class="input-group">
+          <label>Sort By</label>
+          <select name="sort" required>
+            <option value="" disabled selected>Select Option</option>
+            <option value="price">Price (Low to High)</option>
+            <option value="duration">Duration (Short to Long)</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn">Search Flights</button>
+
+      <div id="error-message" class="response-message"></div>
+    </form>
+
+    <!-- Results Section -->
+    <div id="results-section" class="results-section" style="display: none;">
+      <h3 class="results-header">Available Flights</h3>
+      <div id="flight-results" class="flight-results"></div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("flight-search-form");
+      const resultsSection = document.getElementById("results-section");
+      const resultsDiv = document.getElementById("flight-results");
+      const errorBox = document.getElementById("error-message");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        resultsDiv.innerHTML = "";
+        errorBox.innerHTML = "";
+        resultsSection.style.display = "none";
+
+        const origin = document.querySelector('input[name="origin"]').value.trim();
+        const destination = document.querySelector('input[name="destination"]').value.trim();
+        const date = document.querySelector('input[name="date"]').value;
+        const sort = document.querySelector('select[name="sort"]').value;
+
+        // Show loading spinner
+        const loader = document.createElement("div");
+        loader.className = "loader";
+        loader.innerHTML = "<p>🔄 Searching flights...</p>";
+        loader.style.textAlign = "center";
+        loader.style.padding = "20px";
+        loader.style.color = "#0078ff";
+        resultsSection.style.display = "block";
+        resultsDiv.appendChild(loader);
+
+        try {
+          const res = await fetch(
+            `/api/flights/search/?origin=${origin}&destination=${destination}&date=${date}&sort=${sort}`
+          );
+          const data = await res.json();
+          loader.remove();
+
+          if (!res.ok) {
+            const errorMsg = data.errors
+              ? Object.values(data.errors).join("<br>")
+              : data.message || "Something went wrong.";
+            showError(errorMsg);
+            return;
+          }
+
+          if (!Array.isArray(data.flights)) {
+            showError("Invalid flight data format.");
+            return;
+          }
+
+          renderFlights(data.flights, data.sort_by);
+        } catch (err) {
+          loader.remove();
+          showError("Network error. Please try again later.");
+          console.error(err);
+        }
+      });
+
+      function showError(msg) {
+        errorBox.innerHTML = `<p class="error">${msg}</p>`;
+        resultsSection.style.display = "none";
+      }
+
+      function renderFlights(flights, sortBy) {
+        if (flights.length === 0) {
+          errorBox.innerHTML = "<p class='error'>No flights found.</p>";
+          resultsSection.style.display = "none";
+          return;
+        }
+
+        resultsSection.style.display = "block";
+        document.querySelector('.results-header').textContent = `Showing ${flights.length} results (sorted by ${sortBy})`;
+
+        const cheapest = Math.min(...flights.map(f => f.dynamic_price));
+
+        flights.forEach((f) => {
+          const flightId = f.flight_id ?? f.id ?? "N/A";
+          const isCheapest = f.dynamic_price === cheapest;
+          const badge = isCheapest ? `<span style="background: #009933; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px; margin-left: 8px;">Best Price</span>` : "";
+
+          const card = document.createElement("div");
+          card.classList.add("flight-card");
+
+          card.innerHTML = `
+            <div class="flight-header">
+              <div class="flight-route">
+                Flight ${flightId} — ${f.origin}<span class="arrow">→</span>${f.destination} ${badge}
+              </div>
+              <div class="flight-price">₹${f.dynamic_price}</div>
+            </div>
+            <div class="flight-details">
+              <span>⏱ Departure: ${new Date(f.departure_time).toLocaleString()}</span>
+              <span>⏱ Arrival: ${new Date(f.arrival_time).toLocaleString()}</span>
+              <span>⏱ Duration: ${f.duration_hours} hrs</span>
+            </div>
+            <button class="book-btn" data-id="${flightId}">✈️ Book Flight</button>
+          `;
+
+          resultsDiv.appendChild(card);
+        });
+
+        document.querySelectorAll(".book-btn").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            const button = e.target.closest(".book-btn");
+            const flightId = button?.dataset?.id;
+
+            if (flightId && flightId !== "N/A") {
+              window.location.href = `/bookings-page/${flightId}/`;
+            } else {
+              alert("Invalid flight ID. Cannot proceed with booking.");
+            }
+          });
+        });
+      }
+    });
+  </script>
+
+</body>
 </html>

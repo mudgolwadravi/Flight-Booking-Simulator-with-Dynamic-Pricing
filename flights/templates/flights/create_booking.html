@@ -1,4 +1,4 @@
-{% load static %}
+{% comment %} {% load static %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -86,4 +86,448 @@
 
     <script src="{% static 'flights/js/create_booking.js' %}"></script>
   </body>
+</html> {% endcomment %}
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Booking</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #002244, #0055aa);
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .booking-container {
+      background: #fff;
+      padding: 40px 50px;
+      border-radius: 18px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+      width: 650px;
+      max-width: 90%;
+      animation: fadeIn 1s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .form-header h2 {
+      font-weight: 600;
+      color: #003366;
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .form-header p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .booking-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 15px;
+    }
+
+    .input-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .input-group label {
+      color: #0078ff;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .input-group input,
+    .input-group select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: 'Poppins', sans-serif;
+      background: #f9f9f9;
+      transition: all 0.3s ease;
+    }
+
+    .input-group input:focus,
+    .input-group select:focus {
+      border-color: #0078ff;
+      background: #fff;
+      outline: none;
+      box-shadow: 0 0 8px rgba(0,120,255,0.2);
+    }
+
+    .seat-section {
+      margin-top: 10px;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 12px;
+      border: 1.5px solid #e0e0e0;
+    }
+
+    .seat-section h3 {
+      color: #003366;
+      font-size: 16px;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #toggle-seat-map {
+      padding: 8px 16px;
+      background: #0078ff;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    #toggle-seat-map:hover {
+      background: #005ec4;
+    }
+
+    .seat-map {
+      margin-top: 15px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding: 15px;
+      background: #fff;
+      border-radius: 8px;
+    }
+
+    .seat-map::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .seat-map::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    .seat-map::-webkit-scrollbar-thumb {
+      background: #0078ff;
+      border-radius: 10px;
+    }
+
+    .plane {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .section-title {
+      text-align: center;
+      font-weight: 600;
+      color: #003366;
+      margin: 15px 0 10px 0;
+      padding: 8px;
+      background: #e3f2fd;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 5px;
+    }
+
+    .seat {
+      width: 45px;
+      height: 45px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 500;
+      transition: all 0.3s;
+      background: #fff;
+    }
+
+    .seat.business {
+      border-color: #ffd700;
+      background: #fffbea;
+    }
+
+    .seat.economy {
+      border-color: #4caf50;
+      background: #f1f8f4;
+    }
+
+    .seat:hover:not(.unavailable):not(.space) {
+      transform: scale(1.1);
+      box-shadow: 0 4px 8px rgba(0,120,255,0.3);
+    }
+
+    .seat.selected {
+      background: #0078ff;
+      color: #fff;
+      border-color: #0078ff;
+      transform: scale(1.1);
+    }
+
+    .seat.unavailable {
+      background: #ffebee;
+      border-color: #e57373;
+      color: #999;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .seat.space {
+      border: none;
+      background: transparent;
+      cursor: default;
+    }
+
+    .submit-btn {
+      padding: 14px;
+      background: #0078ff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
+    }
+
+    .submit-btn:hover {
+      background: #005ec4;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,120,255,0.3);
+    }
+
+    .passenger-redirect {
+      margin-top: 20px;
+      text-align: center;
+      background: #e3f2fd;
+      padding: 12px 15px;
+      border-radius: 8px;
+      border: 1.5px solid #90caf9;
+      font-size: 14px;
+    }
+
+    .passenger-redirect a {
+      color: #0078ff;
+      text-decoration: none;
+      font-weight: 600;
+      margin-left: 5px;
+      transition: color 0.3s ease;
+    }
+
+    .passenger-redirect a:hover {
+      color: #005ec4;
+      text-decoration: underline;
+    }
+
+    .response-message {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 14px;
+      min-height: 20px;
+    }
+
+    .response-message .success {
+      color: #009933;
+      font-weight: 500;
+    }
+
+    .response-message .error {
+      color: #e60000;
+      font-weight: 500;
+    }
+
+    .selected-seat-info {
+      margin-top: 10px;
+      padding: 10px;
+      background: #e8f5e9;
+      border-radius: 6px;
+      text-align: center;
+      font-weight: 500;
+      color: #2e7d32;
+    }
+
+    @media (max-width: 700px) {
+      .booking-container {
+        padding: 30px 20px;
+      }
+      
+      .form-row {
+        flex-direction: column;
+      }
+
+      .seat {
+        width: 38px;
+        height: 38px;
+        font-size: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="booking-container">
+    <div class="form-header">
+      <h2>Create Booking</h2>
+      <p>Complete your flight reservation</p>
+    </div>
+
+    <form id="booking-form" class="booking-form">
+      {% csrf_token %}
+
+      <div class="form-row">
+        <div class="input-group">
+          <label>Passenger ID</label>
+          <input type="number" name="passenger_id" required>
+        </div>
+
+        <div class="input-group">
+          <label>Flight ID</label>
+          <input type="number" name="flight_id" required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="input-group">
+          <label>Travel Date</label>
+          <input type="date" name="travel_date" required>
+        </div>
+
+        <div class="input-group">
+          <label>Seat Preference</label>
+          <select name="seat_preference" required>
+            <option value="" disabled selected>Select Preference</option>
+            <option value="Window">Window</option>
+            <option value="Aisle">Aisle</option>
+            <option value="Middle">Middle</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="seat-section">
+        <h3>
+          Select Your Seat
+          <button type="button" id="toggle-seat-map">🎫 Choose Seat</button>
+        </h3>
+
+        <div id="seat-map" class="seat-map" style="display: none;">
+          <div class="plane">
+            <div class="section-title">Business Class</div>
+            {% for i in business_rows %}
+              <div class="row">
+                {% for seat in seat_letters_business %}
+                  <div class="seat business {% if seat|add:i in booked_seats %}unavailable{% endif %}" data-seat="{{ seat }}{{ i }}">{{ seat }}{{ i }}</div>
+                {% endfor %}
+              </div>
+            {% endfor %}
+
+            <div class="section-title">Economy Class</div>
+            {% for i in economy_rows %}
+              <div class="row">
+                {% for seat in seat_letters_economy %}
+                  {% if seat == 'space' %}
+                    <div class="seat space"></div>
+                  {% else %}
+                    <div class="seat economy {% if seat|add:i in booked_seats %}unavailable{% endif %}" data-seat="{{ seat }}{{ i }}">{{ seat }}{{ i }}</div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div id="selected-seat-info" class="selected-seat-info" style="display: none;"></div>
+      </div>
+
+      <input type="hidden" name="seat_no" id="selected-seat" />
+      
+      <button type="submit" class="submit-btn">Book Now</button>
+
+      <div class="passenger-redirect">
+        <p>
+          <span>Don't have a Passenger ID?</span>
+          <a href="{% url 'create_passenger_page' %}">Add a new passenger</a>
+        </p>
+      </div>
+    </form>
+
+    <div id="response-message" class="response-message"></div>
+  </div>
+
+  <script src="{% static 'flights/js/create_booking.js' %}"></script>
+  <script>
+    // Toggle seat map visibility
+    document.getElementById('toggle-seat-map').addEventListener('click', function() {
+      const seatMap = document.getElementById('seat-map');
+      if (seatMap.style.display === 'none') {
+        seatMap.style.display = 'block';
+        this.textContent = '🎫 Hide Seats';
+      } else {
+        seatMap.style.display = 'none';
+        this.textContent = '🎫 Choose Seat';
+      }
+    });
+
+    // Seat selection
+    document.querySelectorAll('.seat:not(.unavailable):not(.space)').forEach(seat => {
+      seat.addEventListener('click', function() {
+        // Remove previous selection
+        document.querySelectorAll('.seat.selected').forEach(s => s.classList.remove('selected'));
+        
+        // Select this seat
+        this.classList.add('selected');
+        document.getElementById('selected-seat').value = this.dataset.seat;
+        
+        // Show selected seat info
+        const info = document.getElementById('selected-seat-info');
+        info.style.display = 'block';
+        info.textContent = `Selected Seat: ${this.dataset.seat}`;
+      });
+    });
+  </script>
+
+</body>
 </html>

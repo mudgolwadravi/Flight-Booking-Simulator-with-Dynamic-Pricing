@@ -16,7 +16,14 @@
     <div class="logo">✈️ FlyHigh</div>
     <nav>
       <ul>
-        <li><a href="#">Home</a></li>
+        
+        {% comment %} {% if user.is_authenticated %}
+          <li><span style="color:white;">Welcome, {{ user.username }}</span></li>
+          <li><a href="{% url 'logout' %}">Logout</a></li>
+        {% else %}
+          <li><a href="{% url 'login_page' %}">Login</a></li>
+          <li><a href="{% url 'signup_page' %}">Sign Up</a></li>
+        {% endif %} {% endcomment %}
         <li><a href="{% url 'list_page' %}">Flights</a></li> 
         <li><a href="{% url 'create_passenger_page' %}">Add Passenger</a></li>
         <li><a href="{% url 'cancel_booking_page' %}">Cancel Booking</a></li>
